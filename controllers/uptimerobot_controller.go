@@ -45,7 +45,7 @@ type UtilProvider interface {
 	DeleteMonitor(host string, labels map[string]string) error
 }
 
-// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;watch;
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;watch;list;
 
 func (r *UptimerobotReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	nameSpacedName := req.NamespacedName

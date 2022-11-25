@@ -11,4 +11,5 @@ rules:
   - ingresses
   verbs:
   - get
+  - list
   - watch
