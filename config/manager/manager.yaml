@@ -70,6 +70,15 @@ spec:
             - /manager
           args:
             - --leader-elect
+          env:
+            - name: UPTIME_ROBOT_API_KEY
+              value: "<api-key>"
+#            - name: MONITOR_RESOLVE_ALERT_CONTACTS_BY_FRIENDLY_NAME
+#              value: "true"
+#            - name: MONITOR_ALERT_CONTACTS_DELIMITER
+#              value: "-"
+#            - name: MONITOR_ALERT_CONTACTS_ATTRIB_DELIMITER
+#              value: "_"
           image: controller:latest
           name: manager
           securityContext:

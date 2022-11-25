@@ -5,14 +5,16 @@
 The operator creates, updates, deletes uptimerobot monitors for a particular ingress resource. It's designed to use `friendly_name` attribute of a monitor and/or alert contact for unique identification.
 
 ## Description
+
 The operator uses [uptimerobot-tooling](https://github.com/bennsimon/uptimerobot-tooling) to handle api requests.
 
 > The operator will delete the monitor it creates when the ingress resource is deleted.
 
 ## Configuration
+
 Environment Variables Supported:
 
-In addition to the environments supplied on the tooling mentioned above, the operator has the following configurations. 
+In addition to the environments supplied on the tooling mentioned above, the operator has the following configurations.
 
 | Variable              | Description                                        | Default     |
 |-----------------------|----------------------------------------------------|-------------|
@@ -20,7 +22,7 @@ In addition to the environments supplied on the tooling mentioned above, the ope
 
 With the `DOMAIN_LABEL_PREFIX` as `my.domain` the configurations will be supplied as follows:
 
-````yaml
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -41,7 +43,8 @@ spec:
                 name: my-service
                 port:
                   number: 80
-````
+```
+
 The operator reads configurations on the monitor from the label of the ingress resource.
 
 The first label entry `my.domain/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other labels supply the attributes of the monitor. The naming convention is:
@@ -56,18 +59,22 @@ testing, or run against a remote cluster.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever
 cluster `kubectl cluster-info` shows).
 
+> Ensure you have supplied the environment variables here config/manager/manager.yaml.
+
 ### Running on the cluster
 
-1. Build and push your image to the location specified by `IMG`:
+Use the latest tag from [docckerhub](https://hub.docker.com/r/bennsimon/uptimerobot-operator/tags)
+
+1.  Build and push your image to the location specified by `IMG`:
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/uptimerobot-operator:tag
+make docker-build docker-push IMG=bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
 ```
 
-2. Deploy the controller to the cluster with the image specified by `IMG`:
+2.  Deploy the controller to the cluster with the image specified by `IMG`:
 
 ```sh
-make deploy IMG=<some-registry>/uptimerobot-operator:tag
+make deploy IMG=bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
 ```
 
 ### Uninstall CRDs
@@ -101,13 +108,13 @@ cluster
 
 ### Test It Out
 
-1. Install the CRDs into the cluster:
+1.  Install the CRDs into the cluster:
 
 ```sh
 make install
 ```
 
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
+2.  Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
 
 ```sh
 make run
@@ -142,4 +149,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
