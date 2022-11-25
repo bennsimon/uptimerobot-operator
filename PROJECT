@@ -1,0 +1,12 @@
+domain: my.domain
+layout:
+- go.kubebuilder.io/v3
+projectName: uptimerobot-operator
+repo: github.com/bennsimon/uptimerobot-operator
+resources:
+- controller: true
+  domain: my.domain
+  group: my.domain
+  kind: Uptimerobot
+  version: v1
+version: "3"
