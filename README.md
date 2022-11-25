@@ -1,5 +1,7 @@
 # uptimerobot-operator
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)  [![Go](https://github.com/bennsimon/uptimerobot-operator/actions/workflows/go.yaml/badge.svg?branch=main)](https://github.com/bennsimon/uptimerobot-operator/actions/workflows/go.yaml)
+
 The operator creates, updates, deletes uptimerobot monitors for a particular ingress resource. It's designed to use `friendly_name` attribute of a monitor and/or alert contact for unique identification.
 
 ## Description
