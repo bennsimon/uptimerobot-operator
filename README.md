@@ -63,7 +63,7 @@ cluster `kubectl cluster-info` shows).
 
 ### Running on the cluster
 
-Use the latest tag from [docckerhub](https://hub.docker.com/r/bennsimon/uptimerobot-operator/tags)
+Use the latest tag from [dockerhub](https://hub.docker.com/r/bennsimon/uptimerobot-operator/tags)
 
 1.  Build and push your image to the location specified by `IMG`:
 
