@@ -70,10 +70,7 @@ spec:
             - /manager
           args:
             - --leader-elect
-          env:
-            - name:  UPTIME_ROBOT_API_KEY
-              value: "<API KEY>"
-          image: bennsimon/uptimerobot-operator:v0.0.1
+          image: controller:latest
           name: manager
           securityContext:
             allowPrivilegeEscalation: false

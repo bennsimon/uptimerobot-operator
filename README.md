@@ -49,7 +49,6 @@ The first label entry `my.domain/uptimerobot-monitor` enables the ingress resour
 
 To get more attributes refer to the tooling documentation and uptime robot api documentation.
 
-
 ## Getting Started
 
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for
