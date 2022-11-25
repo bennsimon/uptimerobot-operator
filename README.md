@@ -45,7 +45,7 @@ spec:
                   number: 80
 ```
 
-The operator reads configurations on the monitor from the label of the ingress resource.
+The operator reads configurations of the monitor from the label on the ingress resource.
 
 The first label entry `my.domain/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other labels supply the attributes of the monitor. The naming convention is:
 `my.domain/uptimerobot-monitor-<attrib>`.
@@ -60,6 +60,135 @@ testing, or run against a remote cluster.
 cluster `kubectl cluster-info` shows).
 
 > Ensure you have supplied the environment variables here config/manager/manager.yaml.
+
+### Deploying on the cluster
+
+To deploy the operator you will need the following manifests:
+
+*   serviceaccount
+*   clusterrole
+*   clusterrolebinding
+*   deployment
+
+Create a yaml file and paste the yaml snippet below and update configurations to your preferences.
+
+```yaml (uptimerobot-operator.yaml)
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/name: serviceaccount
+    app.kubernetes.io/instance: controller-manager
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: uptimerobot-operator
+    app.kubernetes.io/part-of: uptimerobot-operator
+  name: uptimerobot-operator
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: uptimerobot-operator
+rules:
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrolebinding
+    app.kubernetes.io/instance: manager-rolebinding
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: uptimerobot-operator
+    app.kubernetes.io/part-of: uptimerobot-operator
+  name: uptimerobot-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: uptimerobot-operator
+subjects:
+  - kind: ServiceAccount
+    name: uptimerobot-operator
+    namespace: default # update this to preferred namespace
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uptimerobot-operator
+  labels:
+    control-plane: controller-manager
+    app.kubernetes.io/name: deployment
+    app.kubernetes.io/instance: controller-manager
+    app.kubernetes.io/component: manager
+    app.kubernetes.io/created-by: uptimerobot-operator
+    app.kubernetes.io/part-of: uptimerobot-operator
+spec:
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        control-plane: controller-manager
+    spec:
+      containers:
+        - command:
+            - /manager
+          env:
+            - name: UPTIME_ROBOT_API_KEY
+              value: "<api-key>"
+#            - name: MONITOR_RESOLVE_ALERT_CONTACTS_BY_FRIENDLY_NAME
+#              value: "true"
+#            - name: MONITOR_ALERT_CONTACTS_DELIMITER
+#              value: "-"
+#            - name: MONITOR_ALERT_CONTACTS_ATTRIB_DELIMITER
+#              value: "_"
+          image: bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
+          name: manager
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - "ALL"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          # TODO(user): Configure the resources accordingly based on the project requirements.
+          # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+          resources:
+            limits:
+              cpu: 500m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+      serviceAccountName: uptimerobot-operator
+      terminationGracePeriodSeconds: 10
+```
+
+    kubectl apply -f uptimerobot-operator.yaml
+
+## Development
 
 ### Running on the cluster
 
