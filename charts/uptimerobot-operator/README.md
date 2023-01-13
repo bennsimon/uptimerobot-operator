@@ -39,7 +39,7 @@ The following table lists the configurable parameters of the Uptimerobot-operato
 | `nameOverride`                               |             | `""`                                                       |
 | `fullnameOverride`                           |             | `""`                                                       |
 | `clusterRole.create`                         |             | `true`                                                     |
-| `serviceAccount.create`                      |             | `false`                                                    |
+| `serviceAccount.create`                      |             | `true`                                                     |
 | `serviceAccount.annotations`                 |             | `{}`                                                       |
 | `serviceAccount.name`                        |             | `""`                                                       |
 | `podAnnotations`                             |             | `{}`                                                       |
