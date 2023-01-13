@@ -38,15 +38,14 @@ The following table lists the configurable parameters of the Uptimerobot-operato
 | `imagePullSecrets`                           |             | `[]`                                                       |
 | `nameOverride`                               |             | `""`                                                       |
 | `fullnameOverride`                           |             | `""`                                                       |
-| `serviceAccount.create`                      |             | `true`                                                     |
+| `clusterRole.create`                         |             | `true`                                                     |
+| `serviceAccount.create`                      |             | `false`                                                    |
 | `serviceAccount.annotations`                 |             | `{}`                                                       |
 | `serviceAccount.name`                        |             | `""`                                                       |
 | `podAnnotations`                             |             | `{}`                                                       |
 | `podSecurityContext`                         |             | `{}`                                                       |
 | `securityContext.allowPrivilegeEscalation`   |             | `false`                                                    |
 | `securityContext.capabilities.drop`          |             | `["ALL"]`                                                  |
-| `service.type`                               |             | `"ClusterIP"`                                              |
-| `service.port`                               |             | `80`                                                       |
 | `resources.limits.memory`                    |             | `"128Mi"`                                                  |
 | `resources.requests.cpu`                     |             | `"10m"`                                                    |
 | `resources.requests.memory`                  |             | `"64Mi"`                                                   |

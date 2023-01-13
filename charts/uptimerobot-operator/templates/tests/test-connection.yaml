@@ -11,5 +11,4 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "uptimerobot-operator.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
