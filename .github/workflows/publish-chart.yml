@@ -1,0 +1,32 @@
+# Kindly refer to https://github.com/helm/chart-releaser-action
+
+name: Publish Charts
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0 # step that writes the latest chart versions (below) depends on this step writing the latest version as the first index in the entries.<name of chart> list in the index.yaml file
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
