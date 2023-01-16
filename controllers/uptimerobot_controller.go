@@ -41,8 +41,8 @@ type UptimerobotReconciler struct {
 }
 
 type UtilProvider interface {
-	CreateMonitor(host string, labels map[string]string) error
-	DeleteMonitor(host string, labels map[string]string) error
+	CreateMonitor(host string, annotations map[string]string) error
+	DeleteMonitor(host string, annotations map[string]string) error
 }
 
 // +kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;watch;list;
@@ -61,7 +61,7 @@ func (r *UptimerobotReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	hosts := buildHostSchemeMap(ingress)
 	for host, scheme := range hosts {
 		hostWithScheme := scheme + "://" + host
-		if err := r.UtilProvider.CreateMonitor(hostWithScheme, ingress.Labels); err != nil {
+		if err := r.UtilProvider.CreateMonitor(hostWithScheme, ingress.Annotations); err != nil {
 			log.Log.Error(err, fmt.Sprintf("Monitor %s not successfully created/updated", hostWithScheme))
 			return ctrl.Result{}, nil
 		}
@@ -71,12 +71,12 @@ func (r *UptimerobotReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	return ctrl.Result{}, nil
 }
 
-func (r *UptimerobotReconciler) CreateMonitor(host string, labels map[string]string) error {
-	return monitorutil.CreateMonitor(host, labels)
+func (r *UptimerobotReconciler) CreateMonitor(host string, annotations map[string]string) error {
+	return monitorutil.CreateMonitor(host, annotations)
 }
 
-func (r *UptimerobotReconciler) DeleteMonitor(host string, labels map[string]string) error {
-	return monitorutil.DeleteMonitor(host, labels)
+func (r *UptimerobotReconciler) DeleteMonitor(host string, annotations map[string]string) error {
+	return monitorutil.DeleteMonitor(host, annotations)
 }
 
 func buildHostSchemeMap(ingress *network.Ingress) map[string]string {
@@ -115,16 +115,16 @@ func (r *UptimerobotReconciler) FilterEnabledIngress() predicate.Predicate {
 
 func (r *UptimerobotReconciler) filterGenericEvent(genericEvent event.GenericEvent) bool {
 	if genericEvent.Object != nil {
-		return r.hasEnabledUptimeRobotMonitor(genericEvent.Object.GetLabels())
+		return r.hasEnabledUptimeRobotMonitor(genericEvent.Object.GetAnnotations())
 	}
 	return false
 }
 
 func (r *UptimerobotReconciler) filterDeleteEvent(deleteEvent event.DeleteEvent) bool {
 	if deleteEvent.Object != nil {
-		enabled := r.hasEnabledUptimeRobotMonitor(deleteEvent.Object.GetLabels())
+		enabled := r.hasEnabledUptimeRobotMonitor(deleteEvent.Object.GetAnnotations())
 		if enabled {
-			go r.cleanUpAfterIngressDeletion(deleteEvent.Object.GetLabels())
+			go r.cleanUpAfterIngressDeletion(deleteEvent.Object.GetAnnotations())
 		}
 	}
 	return false
@@ -132,29 +132,29 @@ func (r *UptimerobotReconciler) filterDeleteEvent(deleteEvent event.DeleteEvent)
 
 func (r *UptimerobotReconciler) filterUpdateEvent(updateEvent event.UpdateEvent) bool {
 	if updateEvent.ObjectNew != nil {
-		return r.hasEnabledUptimeRobotMonitor(updateEvent.ObjectNew.GetLabels())
+		return r.hasEnabledUptimeRobotMonitor(updateEvent.ObjectNew.GetAnnotations())
 	}
 	return false
 }
 
 func (r *UptimerobotReconciler) filterCreateEvent(event event.CreateEvent) bool {
 	if event.Object != nil {
-		return r.hasEnabledUptimeRobotMonitor(event.Object.GetLabels())
+		return r.hasEnabledUptimeRobotMonitor(event.Object.GetAnnotations())
 	}
 	return false
 }
 
-func (r *UptimerobotReconciler) cleanUpAfterIngressDeletion(labels map[string]string) {
-	err := r.UtilProvider.DeleteMonitor("", labels)
+func (r *UptimerobotReconciler) cleanUpAfterIngressDeletion(annotations map[string]string) {
+	err := r.UtilProvider.DeleteMonitor("", annotations)
 	if err != nil {
-		log.Log.Error(err, fmt.Sprintf("Monitor %s not successfully deleted", labels[monitorutil.GetUptimeRobotMonitorLabelPrefix()+httputil.FriendlyNameField]))
+		log.Log.Error(err, fmt.Sprintf("Monitor %s not successfully deleted", annotations[monitorutil.GetUptimeRobotMonitorPrefix()+httputil.FriendlyNameField]))
 	} else {
-		log.Log.Info(fmt.Sprintf("Monitor %s successfully deleted", labels[monitorutil.GetUptimeRobotMonitorLabelPrefix()+httputil.FriendlyNameField]))
+		log.Log.Info(fmt.Sprintf("Monitor %s successfully deleted", annotations[monitorutil.GetUptimeRobotMonitorPrefix()+httputil.FriendlyNameField]))
 	}
 }
 
-func (r *UptimerobotReconciler) hasEnabledUptimeRobotMonitor(labelMap map[string]string) bool {
-	if val, exists := labelMap[monitorutil.GetUptimeRobotLabelDomain()]; exists {
+func (r *UptimerobotReconciler) hasEnabledUptimeRobotMonitor(annotationMap map[string]string) bool {
+	if val, exists := annotationMap[monitorutil.GetUptimeRobotDomain()]; exists {
 		isEnabled, err := strconv.ParseBool(val)
 		if err != nil {
 			return false

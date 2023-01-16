@@ -16,21 +16,21 @@ Environment Variables Supported:
 
 In addition to the environments supplied on the tooling mentioned above, the operator has the following configurations.
 
-| Variable              | Description                                        | Default     |
-|-----------------------|----------------------------------------------------|-------------|
-| `DOMAIN_LABEL_PREFIX` | The domain name to use when specifying the labels. | `my.domain` |
+| Variable        | Description                                             | Default     |
+|-----------------|---------------------------------------------------------|-------------|
+| `DOMAIN_PREFIX` | The domain name to use when specifying the annotations. | `my.domain` |
 
-With the `DOMAIN_LABEL_PREFIX` as `my.domain` the configurations will be supplied as follows:
+With the `DOMAIN_PREFIX` as `my.domain` the configurations will be supplied as follows:
 
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: https-minimal-ingress
-  labels:
-    my.domain/uptimerobot-monitor: "true"
-    my.domain/uptimerobot-monitor-type: "HTTP"
-    my.domain/uptimerobot-monitor-friendly_name: "tester"
+  annotations:
+      my.domain/uptimerobot-monitor: "true"
+      my.domain/uptimerobot-monitor-type: "HTTP"
+      my.domain/uptimerobot-monitor-friendly_name: "tester"
 spec:
   rules:
     - host: test-domain.localhost
@@ -45,9 +45,9 @@ spec:
                   number: 80
 ```
 
-The operator reads configurations of the monitor from the label on the ingress resource.
+The operator reads configurations of the monitor from the annotation on the ingress resource.
 
-The first label entry `my.domain/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other labels supply the attributes of the monitor. The naming convention is:
+The first annotation entry `my.domain/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other annotations supply the attributes of the monitor. The naming convention is:
 `my.domain/uptimerobot-monitor-<attrib>`.
 
 To get more attributes refer to the tooling documentation and uptime robot api documentation.
@@ -154,7 +154,7 @@ spec:
 #              value: "-"
 #            - name: MONITOR_ALERT_CONTACTS_ATTRIB_DELIMITER
 #              value: "_"
-          image: bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
+          image: bennsimon/uptimerobot-operator:v0.0.2
           name: manager
           securityContext:
             allowPrivilegeEscalation: false
@@ -197,13 +197,13 @@ Use the latest tag from [dockerhub](https://hub.docker.com/r/bennsimon/uptimerob
 1.  Build and push your image to the location specified by `IMG`:
 
 ```sh
-make docker-build docker-push IMG=bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
+make docker-build docker-push IMG=bennsimon/uptimerobot-operator:v0.0.2
 ```
 
 2.  Deploy the controller to the cluster with the image specified by `IMG`:
 
 ```sh
-make deploy IMG=bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
+make deploy IMG=bennsimon/uptimerobot-operator:v0.0.2
 ```
 
 ### Uninstall CRDs

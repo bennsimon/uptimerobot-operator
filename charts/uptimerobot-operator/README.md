@@ -34,7 +34,7 @@ The following table lists the configurable parameters of the Uptimerobot-operato
 | `replicaCount`                               |             | `1`                                                        |
 | `image.repository`                           |             | `"bennsimon/uptimerobot-operator"`                         |
 | `image.pullPolicy`                           |             | `"IfNotPresent"`                                           |
-| `image.tag`                                  |             | `"v0.0.1-alpha-r1"`                                        |
+| `image.tag`                                  |             | `"v0.0.2"`                                        |
 | `imagePullSecrets`                           |             | `[]`                                                       |
 | `nameOverride`                               |             | `""`                                                       |
 | `fullnameOverride`                           |             | `""`                                                       |

@@ -10,51 +10,54 @@ import (
 )
 
 const (
-	DomainLabelPrefixEnv = "DOMAIN_LABEL_PREFIX"
-	Url                  = "url"
-	LabelPrefix          = "uptimerobot-monitor"
+	DomainPrefixEnv  = "DOMAIN_PREFIX"
+	Url              = "url"
+	AnnotationPrefix = "uptimerobot-monitor"
 )
 
-func DeleteMonitor(host string, ingressLabels map[string]string) error {
-	return executeMonitorAction(host, ingressLabels, model.Delete, monitor.New())
+func DeleteMonitor(host string, ingressAnnotations map[string]string) error {
+	return executeMonitorAction(host, ingressAnnotations, model.Delete, monitor.New())
 }
 
-func CreateMonitor(host string, ingressLabels map[string]string) error {
-	return executeMonitorAction(host, ingressLabels, model.Update, monitor.New())
+func CreateMonitor(host string, ingressAnnotations map[string]string) error {
+	return executeMonitorAction(host, ingressAnnotations, model.Update, monitor.New())
 }
 
-func executeMonitorAction(host string, ingressLabels map[string]string, action model.Args, service service.IService) error {
-	labels, err := buildDataMapFromLabels(ingressLabels)
+func executeMonitorAction(host string, ingressAnnotations map[string]string, action model.Args, service service.IService) error {
+	annotations, err := buildDataMapFromAnnotations(ingressAnnotations)
 	if err != nil {
 		return err
 	}
-	labels[Url] = host
 
-	resultArrayMap := service.HandleRequest([]map[string]interface{}{labels}, action)
+	if _, exists := annotations[Url]; !exists {
+		annotations[Url] = host
+	}
+
+	resultArrayMap := service.HandleRequest([]map[string]interface{}{annotations}, action)
 	if resultArrayMap != nil && len(resultArrayMap) > 0 && resultArrayMap[0] != nil && resultArrayMap[0][model.ErrorResultField] != nil {
 		return resultArrayMap[0][model.ErrorResultField].(error)
 	}
 	return nil
 }
 
-func buildDataMapFromLabels(ingressLabels map[string]string) (map[string]interface{}, error) {
-	if ingressLabels == nil || len(ingressLabels) == 0 {
-		return nil, errors.New("no ingress label provided")
+func buildDataMapFromAnnotations(ingressAnnotations map[string]string) (map[string]interface{}, error) {
+	if ingressAnnotations == nil || len(ingressAnnotations) == 0 {
+		return nil, errors.New("no ingress annotation provided")
 	}
 	dataMap := make(map[string]interface{})
-	uptimeRobotLabelPrefix := GetUptimeRobotMonitorLabelPrefix()
+	uptimeRobotPrefix := GetUptimeRobotMonitorPrefix()
 
-	for labelKey, labelValue := range ingressLabels {
-		if strings.HasPrefix(labelKey, uptimeRobotLabelPrefix) {
-			_labelKey := strings.TrimPrefix(labelKey, uptimeRobotLabelPrefix)
-			dataMap[_labelKey] = labelValue
+	for key, value := range ingressAnnotations {
+		if strings.HasPrefix(key, uptimeRobotPrefix) {
+			_Key := strings.TrimPrefix(key, uptimeRobotPrefix)
+			dataMap[_Key] = value
 		}
 	}
 	return dataMap, nil
 }
 
-func GetUptimeRobotLabelDomain() string {
-	prefixStr := "/" + LabelPrefix
+func GetUptimeRobotDomain() string {
+	prefixStr := "/" + AnnotationPrefix
 	envPrefix := getUptimeRobotDomain()
 	if len(envPrefix) == 0 {
 		return "my.domain" + prefixStr
@@ -62,12 +65,12 @@ func GetUptimeRobotLabelDomain() string {
 	return envPrefix + prefixStr
 }
 
-func GetUptimeRobotMonitorLabelPrefix() string {
-	return GetUptimeRobotLabelDomain() + "-"
+func GetUptimeRobotMonitorPrefix() string {
+	return GetUptimeRobotDomain() + "-"
 }
 
 func getUptimeRobotDomain() string {
-	return os.Getenv(DomainLabelPrefixEnv)
+	return os.Getenv(DomainPrefixEnv)
 }
 
 type MonitorUtil struct {
