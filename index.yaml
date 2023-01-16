@@ -2,6 +2,21 @@ apiVersion: v1
 entries:
   uptimerobot-operator:
   - apiVersion: v2
+    appVersion: v0.1.0
+    created: "2023-01-16T13:33:20.495238951Z"
+    description: uptimerobot operator creates, updates, deletes uptimerobot monitors
+      for a particular ingress resource. It's designed to use friendly_name attribute
+      of a monitor and/or alert contact for unique identification.
+    digest: 8db4ff480ea500b014a671d09898ca60f1fceab504d46600810889ff1ea0e988
+    maintainers:
+    - email: bennsimonotieno@gmail.com
+      name: bennsimon
+    name: uptimerobot-operator
+    type: application
+    urls:
+    - https://github.com/bennsimon/uptimerobot-operator/releases/download/uptimerobot-operator-0.1.0/uptimerobot-operator-0.1.0.tgz
+    version: 0.1.0
+  - apiVersion: v2
     appVersion: v0.0.2
     created: "2023-01-16T10:59:02.883930559Z"
     description: uptimerobot operator creates, updates, deletes uptimerobot monitors
@@ -46,4 +61,4 @@ entries:
     urls:
     - https://github.com/bennsimon/uptimerobot-operator/releases/download/uptimerobot-operator-0.0.1/uptimerobot-operator-0.0.1.tgz
     version: 0.0.1
-generated: "2023-01-16T10:59:02.883942659Z"
+generated: "2023-01-16T13:33:20.495260051Z"
