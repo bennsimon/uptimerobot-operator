@@ -60,7 +60,7 @@ func GetUptimeRobotDomain() string {
 	prefixStr := "/" + AnnotationPrefix
 	envPrefix := getUptimeRobotDomain()
 	if len(envPrefix) == 0 {
-		return "my.domain" + prefixStr
+		return "bennsimon.github.io" + prefixStr
 	}
 	return envPrefix + prefixStr
 }

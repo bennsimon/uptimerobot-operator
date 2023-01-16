@@ -16,11 +16,11 @@ Environment Variables Supported:
 
 In addition to the environments supplied on the tooling mentioned above, the operator has the following configurations.
 
-| Variable        | Description                                             | Default     |
-|-----------------|---------------------------------------------------------|-------------|
-| `DOMAIN_PREFIX` | The domain name to use when specifying the annotations. | `my.domain` |
+| Variable        | Description                                             | Default               |
+|-----------------|---------------------------------------------------------|-----------------------|
+| `DOMAIN_PREFIX` | The domain name to use when specifying the annotations. | `bennsimon.github.io` |
 
-With the `DOMAIN_PREFIX` as `my.domain` the configurations will be supplied as follows:
+With the `DOMAIN_PREFIX` as `bennsimon.github.io` the configurations will be supplied as follows:
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -28,9 +28,9 @@ kind: Ingress
 metadata:
   name: https-minimal-ingress
   annotations:
-      my.domain/uptimerobot-monitor: "true"
-      my.domain/uptimerobot-monitor-type: "HTTP"
-      my.domain/uptimerobot-monitor-friendly_name: "tester"
+      bennsimon.github.io/uptimerobot-monitor: "true"
+      bennsimon.github.io/uptimerobot-monitor-type: "HTTP"
+      bennsimon.github.io/uptimerobot-monitor-friendly_name: "tester"
 spec:
   rules:
     - host: test-domain.localhost
@@ -47,8 +47,8 @@ spec:
 
 The operator reads configurations of the monitor from the annotation on the ingress resource.
 
-The first annotation entry `my.domain/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other annotations supply the attributes of the monitor. The naming convention is:
-`my.domain/uptimerobot-monitor-<attrib>`.
+The first annotation entry `bennsimon.github.io/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other annotations supply the attributes of the monitor. The naming convention is:
+`bennsimon.github.io/uptimerobot-monitor-<attrib>`.
 
 To get more attributes refer to the tooling documentation and uptime robot api documentation.
 
