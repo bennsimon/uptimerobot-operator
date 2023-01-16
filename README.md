@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)  [![Go](https://github.com/bennsimon/uptimerobot-operator/actions/workflows/go.yaml/badge.svg?branch=main)](https://github.com/bennsimon/uptimerobot-operator/actions/workflows/go.yaml)
 
-The operator creates, updates, deletes uptimerobot monitors for a particular ingress resource. It's designed to use `friendly_name` attribute of a monitor and/or alert contact for unique identification.
+The operator creates, updates, deletes uptimerobot monitors for a particular ingress resource. It's designed to use `friendly_name` parameter of a monitor and/or alert contact for unique identification.
 
 ## Description
 
@@ -16,21 +16,26 @@ Environment Variables Supported:
 
 In addition to the environments supplied on the tooling mentioned above, the operator has the following configurations.
 
-| Variable              | Description                                        | Default     |
-|-----------------------|----------------------------------------------------|-------------|
-| `DOMAIN_LABEL_PREFIX` | The domain name to use when specifying the labels. | `my.domain` |
+| Variable        | Description                                             | Default               |
+|-----------------|---------------------------------------------------------|-----------------------|
+| `DOMAIN_PREFIX` | The domain name to use when specifying the annotations. | `bennsimon.github.io` |
 
-With the `DOMAIN_LABEL_PREFIX` as `my.domain` the configurations will be supplied as follows:
+With the `DOMAIN_PREFIX` as `bennsimon.github.io` the configurations will be supplied as follows:
 
+Example 1
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: https-minimal-ingress
-  labels:
-    my.domain/uptimerobot-monitor: "true"
-    my.domain/uptimerobot-monitor-type: "HTTP"
-    my.domain/uptimerobot-monitor-friendly_name: "tester"
+  annotations:
+      bennsimon.github.io/uptimerobot-monitor: "true"
+      bennsimon.github.io/uptimerobot-monitor-type: "HTTP"
+      bennsimon.github.io/uptimerobot-monitor-friendly_name: "tester"
+      bennsimon.github.io/uptimerobot-monitor-alert_contacts: "tester opsgenie"
+      bennsimon.github.io/uptimerobot-monitor-interval: "60"
+      bennsimon.github.io/uptimerobot-monitor-timeout: "30"
+      # To use more parameters append valid uptimerobot monitor api parameter from https://uptimerobot.com/api/ to the prefix `bennsimon.github.io/uptimerobot-monitor-`
 spec:
   rules:
     - host: test-domain.localhost
@@ -45,12 +50,12 @@ spec:
                   number: 80
 ```
 
-The operator reads configurations of the monitor from the label on the ingress resource.
+The operator reads configurations of the monitor from the annotation on the ingress resource.
 
-The first label entry `my.domain/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other labels supply the attributes of the monitor. The naming convention is:
-`my.domain/uptimerobot-monitor-<attrib>`.
+**The first annotation entry `bennsimon.github.io/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other annotations supply the parameters of the monitor. The naming convention is:
+`bennsimon.github.io/uptimerobot-monitor-<parameter>`.**
 
-To get more attributes refer to the tooling documentation and uptime robot api documentation.
+**To get more parameters refer to the [tooling documentation](https://github.com/bennsimon/uptimerobot-tooling) and uptimerobot api documentation.**
 
 ## Getting Started
 
@@ -154,7 +159,7 @@ spec:
 #              value: "-"
 #            - name: MONITOR_ALERT_CONTACTS_ATTRIB_DELIMITER
 #              value: "_"
-          image: bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
+          image: bennsimon/uptimerobot-operator:v0.1.0
           name: manager
           securityContext:
             allowPrivilegeEscalation: false
@@ -197,13 +202,13 @@ Use the latest tag from [dockerhub](https://hub.docker.com/r/bennsimon/uptimerob
 1.  Build and push your image to the location specified by `IMG`:
 
 ```sh
-make docker-build docker-push IMG=bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
+make docker-build docker-push IMG=bennsimon/uptimerobot-operator:v0.1.0
 ```
 
 2.  Deploy the controller to the cluster with the image specified by `IMG`:
 
 ```sh
-make deploy IMG=bennsimon/uptimerobot-operator:v0.0.1-alpha-r1
+make deploy IMG=bennsimon/uptimerobot-operator:v0.1.0
 ```
 
 ### Uninstall CRDs
