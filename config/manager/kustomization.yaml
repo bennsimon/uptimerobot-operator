@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: bennsimon/uptimerobot-operator
-  newTag: v0.0.1-alpha-r1
+  newTag: v0.0.2
