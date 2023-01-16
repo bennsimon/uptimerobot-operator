@@ -154,7 +154,7 @@ spec:
 #              value: "-"
 #            - name: MONITOR_ALERT_CONTACTS_ATTRIB_DELIMITER
 #              value: "_"
-          image: bennsimon/uptimerobot-operator:v0.0.2
+          image: bennsimon/uptimerobot-operator:v0.1.0
           name: manager
           securityContext:
             allowPrivilegeEscalation: false
@@ -197,13 +197,13 @@ Use the latest tag from [dockerhub](https://hub.docker.com/r/bennsimon/uptimerob
 1.  Build and push your image to the location specified by `IMG`:
 
 ```sh
-make docker-build docker-push IMG=bennsimon/uptimerobot-operator:v0.0.2
+make docker-build docker-push IMG=bennsimon/uptimerobot-operator:v0.1.0
 ```
 
 2.  Deploy the controller to the cluster with the image specified by `IMG`:
 
 ```sh
-make deploy IMG=bennsimon/uptimerobot-operator:v0.0.2
+make deploy IMG=bennsimon/uptimerobot-operator:v0.1.0
 ```
 
 ### Uninstall CRDs
