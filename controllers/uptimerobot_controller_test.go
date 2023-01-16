@@ -29,8 +29,8 @@ type testUtilProvider struct {
 func (t *testClient) Get(ctx context.Context, key client.ObjectKey, obj client.Object, opts ...client.GetOption) error {
 	if key.Name == "ValidIngress" {
 		ingress := obj.(*network.Ingress)
-		ingress.Labels = map[string]string{
-			monitorutil.GetUptimeRobotLabelDomain(): "true",
+		ingress.Annotations = map[string]string{
+			monitorutil.GetUptimeRobotDomain(): "true",
 		}
 		ingress.Spec.Rules = []network.IngressRule{{Host: "test.localhost"}}
 	}
@@ -38,21 +38,21 @@ func (t *testClient) Get(ctx context.Context, key client.ObjectKey, obj client.O
 	return args.Error(0)
 }
 
-func (r *testUtilProvider) CreateMonitor(host string, labels map[string]string) error {
-	args := r.Called(host, labels)
+func (r *testUtilProvider) CreateMonitor(host string, annotations map[string]string) error {
+	args := r.Called(host, annotations)
 	return args.Error(0)
 }
 
-func (r *testUtilProvider) DeleteMonitor(host string, labels map[string]string) error {
-	args := r.Called(host, labels)
+func (r *testUtilProvider) DeleteMonitor(host string, annotations map[string]string) error {
+	args := r.Called(host, annotations)
 	r.wg.Done()
 	return args.Error(0)
 }
 
 func TestUptimerobotReconciler_Reconcile(t *testing.T) {
 	type args struct {
-		host   string
-		labels map[string]string
+		host        string
+		annotations map[string]string
 	}
 	var testclient *testClient
 	var testutilprovider *testUtilProvider
@@ -67,14 +67,14 @@ func TestUptimerobotReconciler_Reconcile(t *testing.T) {
 		setupMocks  func()
 		verifyMocks func()
 	}{
-		{name: "should return err if get resource has error other than 404", args: args{host: "", labels: map[string]string{}}, setupMocks: func() {
+		{name: "should return err if get resource has error other than 404", args: args{host: "", annotations: map[string]string{}}, setupMocks: func() {
 			testclient = &testClient{}
 			testclient.On("Get", mock.IsType(context.Background()), mock.IsType(types.NamespacedName{Namespace: "default", Name: "uptimerobotoperator"}), mock.IsType(&network.Ingress{}), mock.Anything).Return(errors.New(""))
 			r.Client = testclient
 		}, tn: types.NamespacedName{Namespace: "default", Name: "world"}, verifyMocks: func() {
 			testclient.AssertExpectations(t)
 		}, wantError: true},
-		{name: "should return nil when create monitor action fails with valid ingress", args: args{host: "", labels: map[string]string{}}, setupMocks: func() {
+		{name: "should return nil when create monitor action fails with valid ingress", args: args{host: "", annotations: map[string]string{}}, setupMocks: func() {
 			testclient = &testClient{}
 			testclient.On("Get", mock.IsType(context.Background()), mock.IsType(types.NamespacedName{Namespace: "default", Name: "ValidIngress"}), mock.IsType(&network.Ingress{}), mock.Anything).Return(nil)
 			r.Client = testclient
@@ -86,7 +86,7 @@ func TestUptimerobotReconciler_Reconcile(t *testing.T) {
 			testclient.AssertExpectations(t)
 			testutilprovider.AssertExpectations(t)
 		}, wantError: false},
-		{name: "should return nil when create monitor action is successful with valid ingress", args: args{host: "", labels: map[string]string{}}, setupMocks: func() {
+		{name: "should return nil when create monitor action is successful with valid ingress", args: args{host: "", annotations: map[string]string{}}, setupMocks: func() {
 			testclient = &testClient{}
 			testclient.On("Get", mock.IsType(context.Background()), mock.IsType(types.NamespacedName{Namespace: "default", Name: "ValidIngress"}), mock.IsType(&network.Ingress{}), mock.Anything).Return(nil)
 			r.Client = testclient
@@ -121,32 +121,32 @@ func TestUptimerobotReconciler_Reconcile(t *testing.T) {
 func Test_hasEnabledUptimeRobotMonitor(t *testing.T) {
 	r := &UptimerobotReconciler{}
 	type args struct {
-		labelMap map[string]string
+		annotationMap map[string]string
 	}
 	tests := []struct {
 		name string
 		args args
 		want bool
 	}{
-		{name: "should return false due to bool conversion error", args: args{labelMap: map[string]string{
-			monitorutil.GetUptimeRobotLabelDomain(): "falser",
+		{name: "should return false due to bool conversion error", args: args{annotationMap: map[string]string{
+			monitorutil.GetUptimeRobotDomain(): "falser",
 		}}, want: false},
-		{name: "should return false when set false", args: args{labelMap: map[string]string{
-			monitorutil.GetUptimeRobotLabelDomain(): "false",
+		{name: "should return false when set false", args: args{annotationMap: map[string]string{
+			monitorutil.GetUptimeRobotDomain(): "false",
 		}}, want: false},
-		{name: "should return false due to bool conversion error", args: args{labelMap: map[string]string{
-			monitorutil.GetUptimeRobotLabelDomain(): "falser",
+		{name: "should return false due to bool conversion error", args: args{annotationMap: map[string]string{
+			monitorutil.GetUptimeRobotDomain(): "falser",
 		}}, want: false},
-		{name: "should return false config is missing", args: args{labelMap: map[string]string{
-			monitorutil.GetUptimeRobotLabelDomain() + "-": "true",
+		{name: "should return false config is missing", args: args{annotationMap: map[string]string{
+			monitorutil.GetUptimeRobotDomain() + "-": "true",
 		}}, want: false},
-		{name: "should return true config is set to true", args: args{labelMap: map[string]string{
-			monitorutil.GetUptimeRobotLabelDomain(): "true",
+		{name: "should return true config is set to true", args: args{annotationMap: map[string]string{
+			monitorutil.GetUptimeRobotDomain(): "true",
 		}}, want: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := r.hasEnabledUptimeRobotMonitor(tt.args.labelMap); got != tt.want {
+			if got := r.hasEnabledUptimeRobotMonitor(tt.args.annotationMap); got != tt.want {
 				t.Errorf("hasEnabledUptimeRobotMonitor() = %v, want %v", got, tt.want)
 			}
 		})
@@ -192,7 +192,7 @@ func Test_filterGenericEvent(t *testing.T) {
 		args args
 		want bool
 	}{
-		{name: "should return false if labels empty", args: args{genericEvent: event.GenericEvent{Object: &network.Ingress{
+		{name: "should return false if annotations empty", args: args{genericEvent: event.GenericEvent{Object: &network.Ingress{
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
@@ -205,8 +205,8 @@ func Test_filterGenericEvent(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "false",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "false",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
@@ -217,8 +217,8 @@ func Test_filterGenericEvent(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "true",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "true",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
@@ -249,8 +249,8 @@ func Test_filterCreateEvent(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "false",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "false",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
@@ -261,8 +261,8 @@ func Test_filterCreateEvent(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "true",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "true",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
@@ -293,8 +293,8 @@ func Test_filterUpdateEvent(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "false",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "false",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
@@ -305,8 +305,8 @@ func Test_filterUpdateEvent(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "true",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "true",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
@@ -343,8 +343,8 @@ func TestUptimerobotReconciler_cleanUpAfterIngressDeletion(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "true",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "true",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
@@ -362,8 +362,8 @@ func TestUptimerobotReconciler_cleanUpAfterIngressDeletion(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "true",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "true",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
@@ -381,8 +381,8 @@ func TestUptimerobotReconciler_cleanUpAfterIngressDeletion(t *testing.T) {
 			ObjectMeta: ctrl.ObjectMeta{
 				Name:      "Ingress",
 				Namespace: "default",
-				Labels: map[string]string{
-					monitorutil.GetUptimeRobotLabelDomain(): "false",
+				Annotations: map[string]string{
+					monitorutil.GetUptimeRobotDomain(): "false",
 				},
 			},
 			TypeMeta: ctrl.TypeMeta{
