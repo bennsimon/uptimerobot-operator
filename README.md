@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)  [![Go](https://github.com/bennsimon/uptimerobot-operator/actions/workflows/go.yaml/badge.svg?branch=main)](https://github.com/bennsimon/uptimerobot-operator/actions/workflows/go.yaml)
 
-The operator creates, updates, deletes uptimerobot monitors for a particular ingress resource. It's designed to use `friendly_name` attribute of a monitor and/or alert contact for unique identification.
+The operator creates, updates, deletes uptimerobot monitors for a particular ingress resource. It's designed to use `friendly_name` parameter of a monitor and/or alert contact for unique identification.
 
 ## Description
 
@@ -22,6 +22,7 @@ In addition to the environments supplied on the tooling mentioned above, the ope
 
 With the `DOMAIN_PREFIX` as `bennsimon.github.io` the configurations will be supplied as follows:
 
+Example 1
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -31,6 +32,10 @@ metadata:
       bennsimon.github.io/uptimerobot-monitor: "true"
       bennsimon.github.io/uptimerobot-monitor-type: "HTTP"
       bennsimon.github.io/uptimerobot-monitor-friendly_name: "tester"
+      bennsimon.github.io/uptimerobot-monitor-alert_contacts: "tester opsgenie"
+      bennsimon.github.io/uptimerobot-monitor-interval: "60"
+      bennsimon.github.io/uptimerobot-monitor-timeout: "30"
+      # To use more parameters append valid uptimerobot monitor api parameter from https://uptimerobot.com/api/ to the prefix `bennsimon.github.io/uptimerobot-monitor-`
 spec:
   rules:
     - host: test-domain.localhost
@@ -47,10 +52,10 @@ spec:
 
 The operator reads configurations of the monitor from the annotation on the ingress resource.
 
-The first annotation entry `bennsimon.github.io/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other annotations supply the attributes of the monitor. The naming convention is:
-`bennsimon.github.io/uptimerobot-monitor-<attrib>`.
+**The first annotation entry `bennsimon.github.io/uptimerobot-monitor` enables the ingress resource to be evaluated by the operator. The other annotations supply the parameters of the monitor. The naming convention is:
+`bennsimon.github.io/uptimerobot-monitor-<parameter>`.**
 
-To get more attributes refer to the tooling documentation and uptime robot api documentation.
+**To get more parameters refer to the [tooling documentation](https://github.com/bennsimon/uptimerobot-tooling) and uptimerobot api documentation.**
 
 ## Getting Started
 
